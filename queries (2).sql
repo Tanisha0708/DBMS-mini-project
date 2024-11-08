@@ -97,3 +97,127 @@ WHERE comment_text REGEXP'good|beautiful';
 SELECT user_id, caption, LENGTH(post.caption) AS caption_length FROM post
 ORDER BY caption_length DESC LIMIT 5;
 
+--17. View for Most Followed Hashtag
+CREATE VIEW MostFollowedHashtags AS
+SELECT 
+    hashtag_name AS Hashtags, 
+    COUNT(hashtag_follow.hashtag_id) AS TotalFollows
+FROM hashtag_follow 
+JOIN hashtags ON hashtags.hashtag_id = hashtag_follow.hashtag_id
+GROUP BY hashtag_follow.hashtag_id
+ORDER BY COUNT(hashtag_follow.hashtag_id) DESC;
+
+--18. View for Most Liked Posts
+CREATE VIEW MostLikedPosts AS
+SELECT post_likes.post_id, COUNT(post_likes.post_id) AS LikesCount
+FROM post_likes
+GROUP BY post_likes.post_id
+ORDER BY LikesCount DESC;
+
+--19. Index for faster search on hashtag_follow table
+CREATE INDEX idx_hashtag_follow_hashtag_id ON hashtag_follow(hashtag_id);
+
+--20. Index for faster search on post table by location
+CREATE INDEX idx_post_location ON post(location);
+
+--21. Index on post_likes for faster counting of likes per post
+CREATE INDEX idx_post_likes_post_id ON post_likes(post_id);
+
+--22. To get users posts count
+DELIMITER //
+
+CREATE FUNCTION GetUserPostCount(userId INT) RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE postCount INT;
+    SELECT COUNT(post_id) INTO postCount
+    FROM post
+    WHERE user_id = userId;
+    RETURN postCount;
+END //
+
+DELIMITER ;
+
+--23. Procedure to insert a new user
+DELIMITER //
+
+CREATE PROCEDURE AddNewUser(IN username VARCHAR(50), IN email VARCHAR(50), IN age INT)
+BEGIN
+    INSERT INTO users (username, email, age) VALUES (username, email, age);
+END //
+
+DELIMITER ;
+
+--24. Procedure to delete inactive users who have no posts
+DELIMITER //
+
+CREATE PROCEDURE DeleteInactiveUsers()
+BEGIN
+    DELETE FROM users 
+    WHERE user_id NOT IN (SELECT user_id FROM post);
+END //
+
+DELIMITER ;
+
+--25. Procedure to get top 5 most followed hashtags
+DELIMITER //
+
+CREATE PROCEDURE GetTopHashtags()
+BEGIN
+    SELECT 
+        hashtag_name AS Hashtags, 
+        COUNT(hashtag_follow.hashtag_id) AS TotalFollows
+    FROM hashtag_follow 
+    JOIN hashtags ON hashtags.hashtag_id = hashtag_follow.hashtag_id
+    GROUP BY hashtag_follow.hashtag_id
+    ORDER BY TotalFollows DESC
+    LIMIT 5;
+END //
+
+DELIMITER ;
+
+--26. Trigger to update a count of posts in the user table after insert on post
+DELIMITER //
+
+CREATE TRIGGER after_post_insert
+AFTER INSERT ON post
+FOR EACH ROW
+BEGIN
+    UPDATE users 
+    SET post_count = post_count + 1
+    WHERE user_id = NEW.user_id;
+END //
+
+DELIMITER ;
+
+--27. Trigger to check for banned words in comments before insert
+DELIMITER //
+
+CREATE TRIGGER before_comment_insert
+BEFORE INSERT ON comments
+FOR EACH ROW
+BEGIN
+    IF NEW.comment_text REGEXP 'bad|offensive|spam' THEN
+        SIGNAL SQLSTATE '45000' 
+        SET MESSAGE_TEXT = 'Comment contains banned words.';
+    END IF;
+END //
+
+DELIMITER ;
+
+--28. Trigger to log follower count after a follow
+DELIMITER //
+
+CREATE TRIGGER after_follow_insert
+AFTER INSERT ON follows
+FOR EACH ROW
+BEGIN
+    UPDATE users 
+    SET follower_count = follower_count + 1
+    WHERE user_id = NEW.followee_id;
+END //
+
+DELIMITER ;
+
+
+
