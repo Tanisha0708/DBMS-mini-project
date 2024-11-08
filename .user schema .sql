@@ -4,7 +4,7 @@ USE social_media;
 
 
 CREATE TABLE users (
-    user_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    user_id INTEGER  PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     profile_photo_url VARCHAR(255) DEFAULT 'https://picsum.photos/100',
     bio VARCHAR(255),
