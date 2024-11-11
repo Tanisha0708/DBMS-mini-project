@@ -3,35 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Media Platform</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Social Media Management System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Login Page -->
-    <div id="login-container">
-        <h2>Login</h2>
-        <form id="login-form">
-            <input type="text" id="username" placeholder="Username" required>
-            <input type="password" id="password" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-    </div>
+    <div class="container">
+        <div id="login-container">
+            <h2>Login to Social Media Management</h2>
+            <form id="loginForm">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
 
-    <!-- Main Feed Page -->
-    <div id="main-feed" style="display: none;">
-        <header>
-            <h1>Welcome to SocialHub</h1>
-            <button id="logout-btn">Logout</button>
-        </header>
-        <div id="post-form">
-            <textarea id="post-content" placeholder="What's on your mind?"></textarea>
-            <button onclick="createPost()">Post</button>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="bio">Bio:</label>
+                <textarea id="bio" name="bio" placeholder="Tell us about yourself..."></textarea>
+
+                <button type="submit">Login</button>
+            </form>
         </div>
-        <div id="feed">
-            <!-- User posts will appear here -->
+
+        <div id="welcome-container" style="display: none;">
+            <h2>Welcome to Our Social Media Management System!</h2>
+            <p id="userMessage"></p>
+            <button id="viewAccountBtn">View Account</button>
+        </div>
+
+        <div id="account-container" style="display: none;">
+            <h2>Your Account</h2>
+            <p><strong>Username:</strong> <span id="accountUsername"></span></p>
+            <p><strong>Email:</strong> <span id="accountEmail"></span></p>
+            <p><strong>Bio:</strong> <span id="accountBio"></span></p>
+            <button id="logoutBtn">Logout</button>
         </div>
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
